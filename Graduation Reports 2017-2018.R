@@ -33,17 +33,25 @@ homeless <- read.csv("grad cohort add_homeless updated.csv",
 # 5 yr cohort of 2017
 rm(list = ls())
 
-dat <- read.csv("Corrected 5yr cohort of 2017.csv",
+dat <- read.csv("Corrected 5yr cohort of 2017 added demo.csv",
                 header = TRUE, stringsAsFactors = FALSE)
 nrow(dat) #40803
+
+# homeless
+homeless <- read.csv("grad cohort add_homeless updated.csv",
+                     header = TRUE, stringsAsFactors = FALSE)
 
 ################################################################################
 # 6 yr cohort of 2016
 rm(list = ls())
 
-dat <- read.csv("Corrected 6yr cohort of 2016.csv",
+dat <- read.csv("Corrected 6yr cohort of 2016 added demo.csv",
                 header = TRUE, stringsAsFactors = FALSE)
 nrow(dat) #40046
+
+# homeless
+homeless <- read.csv("grad cohort add_homeless updated.csv",
+                     header = TRUE, stringsAsFactors = FALSE)
 
 ################################################################################
 
@@ -106,7 +114,7 @@ consolidated <- consolidated[c("districtcode", "locationid", "studentid",
                                "gender", "frl", "everell", "everiep", 
                                "active_duty", "foster_care", "migrant_added", 
                                "fraction", "graduated", "schnumb")]
-
+names(consolidated)
 # recover district codes
 consolidated$districtcode <- floor(consolidated$schnumb / 1000)
 consolidated$schnumb <- NULL
@@ -145,7 +153,6 @@ file_name <- paste0("SOAP 5 Year 2017 Consolidated Outcome Report ",
                     current_date, ".csv")
 write.csv(consolidated, file = file_name, row.names = FALSE, na = "")
 
-
 # 6-year: 35727
 nrow(consolidated)
 current_date <- Sys.Date()
@@ -166,7 +173,10 @@ ccrb <- ccrb %>%
     group_by(studentid, districtcode) %>%
     mutate(numsnapshots_dist = sum(numsnapshots))
 
-ccrb$Cohort <- "2017-2018"
+ccrb$Cohort <- "4 Year Cohort of 2018"
+ccrb$Cohort <- "5 Year Cohort of 2017"
+ccrb$Cohort <- "6 Year Cohort of 2016"
+
 ccrb$District_Code <- ccrb$districtcode
 ccrb$Location_ID <- ccrb$locationid
 ccrb$Student_ID <- ccrb$studentid
@@ -180,9 +190,15 @@ ccrb$District_Denominator <- ccrb$totalsnapshots
 ccrb$Outcome <- ccrb$outcome
 ccrb$Outcome_Description <- ccrb$outcomedesc
 ccrb$Graduated <- ccrb$graduated
-ccrb$Use_In_Cohort_Calculation <- "Y"
-names(ccrb)
-ccrb <- ccrb[c(34:48)]
+ccrb$Use_in_Cohort_Calculation <- "Y"
+
+ccrb <- ccrb[c("Cohort", "District_Code", "Location_ID", "Student_ID",
+               "Number_of_Snapshots_School", "Number_of_Snapshots_District",
+               "Number_of_Snapshots_Total", 
+               "School_Numerator", "School_Denominator",
+               "District_Numerator", "District_Denominator",
+               "Outcome", "Outcome_Description", 
+               "Graduated", "Use_in_Cohort_Calculation")]
 
 # update outcome descriptions
 table(ccrb$Outcome)
@@ -215,7 +231,9 @@ ccrb$Outcome_Description[ccrb$Outcome == "W24"] <- "Withdrawn - Illness not veri
 ccrb$Outcome_Description[ccrb$Outcome == "WC"] <- "Withdrawn - Certificate of Completion"
 ccrb$Outcome_Description[ccrb$Outcome == "WG"] <- "Graduated"
 table(ccrb$Outcome_Description)
-nrow(ccrb[is.na(ccrb$Outcome_Description), ]) #17 missing observations
+nrow(ccrb[is.na(ccrb$Outcome_Description), ]) 
+# 4-year cohort of 2018: 17 missing observations
+# 6-year cohort of 2017: 0 missing observations
 
 ##########
 # save outputs
@@ -225,6 +243,11 @@ current_date <- Sys.Date()
 file_name <- paste0("CCRB 4 Year Cohort of 2018 ", current_date, ".csv")
 write.csv(ccrb, file = file_name, row.names = FALSE, na = "")
 
+# 6-year: 35727
+nrow(ccrb)
+current_date <- Sys.Date()
+file_name <- paste0("CCRB 6 Year Cohort of 2016 ", current_date, ".csv")
+write.csv(ccrb, file = file_name, row.names = FALSE, na = "")
 
 
 ################################################################################
