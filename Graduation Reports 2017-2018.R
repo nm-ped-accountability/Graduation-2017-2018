@@ -25,6 +25,10 @@ nrow(dat) #39718
 dat$schnumb <- gsub(",", "", dat$schnumb)
 dat$schnumb <- as.numeric(dat$schnumb)
 
+# homeless
+homeless <- read.csv("grad cohort add_homeless updated.csv",
+                     header = TRUE, stringsAsFactors = FALSE)
+
 ################################################################################
 # 5 yr cohort of 2017
 rm(list = ls())
@@ -46,7 +50,7 @@ nrow(dat) #40046
 
 
 ################################################################################
-## EdFacts reports
+## pre-processing variables
 ################################################################################
 # graduated
 dat$graduated[dat$outcome == "WG"] <- 1
@@ -70,15 +74,21 @@ table(dat$graduated)
 dat$fraction <- dat$numsnapshots / dat$totalsnapshots
 range(dat$fraction)
 
+
+
+################################################################################
+## EdFacts reports
+################################################################################
+# excused students are included in the EdFacts reports
+edfacts <- dat
+
 ##########
 # save outputs
-# excused students are included in the EdFacts reports
 current_date <- Sys.Date()
 file.name <- paste0("EdFacts 4yr Cohort of 2018 ", current_date, ".csv")
-write.csv(dat, file = file.name, row.names = FALSE, na = "")
-nrow(dat)
+write.csv(edfacts, file = file.name, row.names = FALSE, na = "")
+nrow(edfacts)
 # 4-year cohort of 2018: 39718
-
 
 
 
@@ -86,14 +96,16 @@ nrow(dat)
 ## consolidated outcome report published in SOAP
 ################################################################################
 # excused students are removed from this report
-dat <- dat[dat$graduated != 3, ]
+consolidated <- dat
+consolidated <- consolidated[consolidated$graduated != 3, ]
 
-names(dat) <- tolower(names(dat))
-consolidated <- dat[c("districtcode", "locationid", "studentid", 
-                      "lastname", "firstname", "numsnapshots", "totalsnapshots",
-                      "outcome", "ethnicity", "gender", "frl", "everell", 
-                      "everiep", "active_duty", "foster_care", "migrant_added", 
-                      "fraction", "graduated", "schnumb")]
+names(consolidated) <- tolower(names(consolidated))
+consolidated <- consolidated[c("districtcode", "locationid", "studentid", 
+                               "lastname", "firstname", "numsnapshots", 
+                               "totalsnapshots", "outcome", "ethnicity", 
+                               "gender", "frl", "everell", "everiep", 
+                               "active_duty", "foster_care", "migrant_added", 
+                               "fraction", "graduated", "schnumb")]
 
 # recover district codes
 consolidated$districtcode <- floor(consolidated$schnumb / 1000)
@@ -145,8 +157,10 @@ write.csv(consolidated, file = file_name, row.names = FALSE, na = "")
 
 ################################################################################
 ## CCRB student-level reports
-################################################################################# 
+################################################################################
+# excused students are removed from this report
 ccrb <- dat
+ccrb <- ccrb[ccrb$graduated != 3, ]
 
 ccrb <- ccrb %>%
     group_by(studentid, districtcode) %>%
@@ -216,8 +230,12 @@ write.csv(ccrb, file = file_name, row.names = FALSE, na = "")
 ################################################################################
 ## LFC reports
 ################################################################################
+# excused students are removed from this report
+lfc <- dat
+lfc <- lfc[lfc$graduated != 3, ]
+
 # LFC requests the 4-year cohort with student IDs only
-lfc <- dat$studentid
+lfc <- lfc$studentid
 
 ##########
 # save outputs
@@ -229,7 +247,10 @@ write.csv(lfc, file = file_name, row.names = FALSE, na = "")
 
 ################################################################################
 ## student-level reports for calculating grad rates
-################################################################################# 
+################################################################################
+# excused students are removed from this report
+dat <- dat[dat$graduated != 3, ]
+
 # demographics
 table(dat$everell)
 dat$everell[dat$everell == "Y"] <- "English Learners"
@@ -257,8 +278,6 @@ dat$hispanic[dat$ethnicity == "Hispanic"] <- "Hispanic2"
 dat$hispanic[is.na(dat$hispanic)] <- "Non Hispanic"
 
 # homeless
-homeless <- read.csv("RAW/grad cohort add_homeless updated.csv",
-                     header = TRUE, stringsAsFactors = FALSE)
 homeless[duplicated(homeless$ï..studentid), ] #two ID duplicates
 homeless[homeless$ï..studentid == 727762924, ] #neither record was homeless
 homeless[homeless$ï..studentid == 103249447, ] #neither record was homeless
@@ -292,17 +311,20 @@ dat$migrant_added[dat$migrant_added == ""] <- "Not Migrant" #36472
 # 4-year: 36584
 nrow(dat)
 current_date <- Sys.Date()
-file_name <- paste0("Cleaned 4-Year Cohort of 2018 Student-Level Report ", ".csv")
+file_name <- paste0("Cleaned 4-Year Cohort of 2018 Student-Level Report ", 
+                    current_date, ".csv")
 write.csv(dat, file = file_name, row.names = FALSE, na = "")
 
 # 5-year: 37112
 nrow(dat)
 current_date <- Sys.Date()
-file_name <- paste0("Cleaned 5-Year Cohort of 2017 Student-Level Report ", ".csv")
+file_name <- paste0("Cleaned 5-Year Cohort of 2017 Student-Level Report ", 
+                    current_date, ".csv")
 write.csv(dat, file = file_name, row.names = FALSE, na = "")
 
 # 6-year: 35727
 nrow(dat)
 current_date <- Sys.Date()
-file_name <- paste0("Cleaned 6-Year Cohort of 2016 Student-Level Report ", ".csv")
+file_name <- paste0("Cleaned 6-Year Cohort of 2016 Student-Level Report ", 
+                    current_date, ".csv")
 write.csv(dat, file = file_name, row.names = FALSE, na = "")
