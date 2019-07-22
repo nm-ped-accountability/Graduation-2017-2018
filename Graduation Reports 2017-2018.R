@@ -251,6 +251,8 @@ write.csv(lfc, file = file_name, row.names = FALSE, na = "")
 # excused students are removed from this report
 dat <- dat[dat$graduated != 3, ]
 
+names(dat) <- tolower(names(dat))
+
 # demographics
 table(dat$everell)
 dat$everell[dat$everell == "Y"] <- "English Learners"
@@ -279,9 +281,7 @@ dat$hispanic[is.na(dat$hispanic)] <- "Non Hispanic"
 
 # homeless
 homeless[duplicated(homeless$ï..studentid), ] #two ID duplicates
-homeless[homeless$ï..studentid == 727762924, ] #neither record was homeless
-homeless[homeless$ï..studentid == 103249447, ] #neither record was homeless
-head(homeless)
+#neither record was homeless
 table(homeless$cohort) #2016, 2017, 2018
 table(homeless$homeless) #both HS and HNS mean homeless
 
