@@ -259,6 +259,7 @@ lfc <- lfc[lfc$graduated != 3, ]
 
 # LFC requests the 4-year cohort with student IDs only
 lfc <- lfc$studentid
+names(lfc) <- "Student_ID"
 
 ##########
 # save outputs
