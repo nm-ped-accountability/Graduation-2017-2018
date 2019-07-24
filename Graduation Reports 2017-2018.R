@@ -108,6 +108,8 @@ consolidated <- dat
 consolidated <- consolidated[consolidated$graduated != 3, ]
 
 names(consolidated) <- tolower(names(consolidated))
+names(consolidated)
+
 consolidated <- consolidated[c("districtcode", "locationid", "studentid", 
                                "lastname", "firstname", "numsnapshots", 
                                "totalsnapshots", "outcome", "ethnicity", 
@@ -258,8 +260,7 @@ lfc <- dat
 lfc <- lfc[lfc$graduated != 3, ]
 
 # LFC requests the 4-year cohort with student IDs only
-lfc <- lfc$studentid
-names(lfc) <- "Student_ID"
+lfc <- lfc[, 3, drop = FALSE]
 
 ##########
 # save outputs
